@@ -31,16 +31,12 @@ DIAS_SEMANA = {
 
 def criar_pasta_visualizacoes() -> str:
     """Cria e retorna o caminho da pasta de visualizações"""
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    pasta_base = os.path.join("scripts_processamento", "visualizacoes")
-    pasta_visualizacoes = os.path.join(pasta_base, f"analise_{timestamp}")
+    pasta_base = "graficos_interativos"
     
-    # Cria as pastas necessárias
-    os.makedirs(pasta_visualizacoes, exist_ok=True)
-    os.makedirs(os.path.join(pasta_visualizacoes, "graficos_estaticos"), exist_ok=True)
-    os.makedirs(os.path.join(pasta_visualizacoes, "graficos_interativos"), exist_ok=True)
+    # Cria a pasta se não existir
+    os.makedirs(pasta_base, exist_ok=True)
     
-    return pasta_visualizacoes
+    return pasta_base
 
 def carregar_dados() -> pd.DataFrame:
     """Carrega os dados mais recentes de classificação"""
@@ -66,14 +62,12 @@ def extrair_hora_arquivo(nome_arquivo: str) -> int:
 
 def analisar_horarios(df: pd.DataFrame, pasta_visualizacoes: str):
     """Analisa a distribuição de ligações por horário do dia."""
-    # Extrai hora do nome do arquivo
-    df['hora'] = df['nome_arquivo'].apply(extrair_hora_arquivo)
-    
-    # Remove registros com hora inválida
-    df_horarios = df[df['hora'] != -1].copy()
+    # Usa a data_hora para extrair a hora
+    df_horarios = df[pd.notna(df['data_hora'])].copy()
+    df_horarios['hora_int'] = df_horarios['data_hora'].dt.hour
     
     # Agrupa por hora
-    contagem_horarios = df_horarios['hora'].value_counts().sort_index().reset_index()
+    contagem_horarios = df_horarios['hora_int'].value_counts().sort_index().reset_index()
     contagem_horarios.columns = ['Hora', 'Quantidade']
     
     # Gera gráfico interativo de barras
@@ -99,23 +93,28 @@ def analisar_horarios(df: pd.DataFrame, pasta_visualizacoes: str):
     )
     
     # Salva o gráfico
-    fig.write_html(os.path.join(pasta_visualizacoes, "graficos_interativos", "distribuicao_horarios.html"))
+    fig.write_html(os.path.join(pasta_visualizacoes, "distribuicao_horarios.html"))
     
     return contagem_horarios
 
 def analisar_dias_semana(df: pd.DataFrame, pasta_visualizacoes: str):
     """Analisa a distribuição de ligações por dia da semana."""
-    # Converte a data do nome do arquivo para dia da semana
-    df['dia_semana'] = pd.to_datetime(df['data_processamento']).dt.dayofweek
+    # Usa a data_hora para extrair o dia da semana
+    df_dias = df[pd.notna(df['data_hora'])].copy()
+    df_dias['dia_semana'] = df_dias['data_hora'].dt.day_name()
     
-    # Filtra apenas dias úteis (0-4: segunda a sexta)
-    df_dias = df[df['dia_semana'].between(0, 4)].copy()
-    
-    # Mapeia números para nomes dos dias
-    df_dias['dia_semana_nome'] = df_dias['dia_semana'].map(DIAS_SEMANA)
+    # Traduz os dias da semana para português
+    traducao_dias = {
+        'Monday': 'Segunda-feira',
+        'Tuesday': 'Terça-feira',
+        'Wednesday': 'Quarta-feira',
+        'Thursday': 'Quinta-feira',
+        'Friday': 'Sexta-feira'
+    }
+    df_dias['dia_semana_pt'] = df_dias['dia_semana'].map(traducao_dias)
     
     # Conta ligações por dia
-    contagem_dias = df_dias['dia_semana_nome'].value_counts().reindex(DIAS_SEMANA.values()).reset_index()
+    contagem_dias = df_dias['dia_semana_pt'].value_counts().reindex(DIAS_SEMANA.values()).reset_index()
     contagem_dias.columns = ['Dia', 'Quantidade']
     
     # Gera gráfico interativo
@@ -136,7 +135,7 @@ def analisar_dias_semana(df: pd.DataFrame, pasta_visualizacoes: str):
     )
     
     # Salva o gráfico
-    fig.write_html(os.path.join(pasta_visualizacoes, "graficos_interativos", "distribuicao_dias_semana.html"))
+    fig.write_html(os.path.join(pasta_visualizacoes, "distribuicao_dias_semana.html"))
     
     return contagem_dias
 
@@ -165,6 +164,9 @@ def preparar_dados_categorias(df: pd.DataFrame) -> pd.DataFrame:
 
 def gerar_grafico_barras_horizontal(df_categorias: pd.DataFrame, pasta_visualizacoes: str):
     """Gera gráfico de barras horizontal interativo"""
+    # Ordena o DataFrame do maior para o menor valor
+    df_categorias = df_categorias.sort_values('Quantidade', ascending=True)
+    
     fig = px.bar(df_categorias, 
                  x='Quantidade', 
                  y='Categoria',
@@ -181,15 +183,7 @@ def gerar_grafico_barras_horizontal(df_categorias: pd.DataFrame, pasta_visualiza
     )
     
     # Salva o gráfico interativo
-    fig.write_html(os.path.join(pasta_visualizacoes, "graficos_interativos", "distribuicao_categorias.html"))
-    
-    # Versão estática para relatórios
-    plt.figure(figsize=(12, 8))
-    sns.barplot(data=df_categorias, x='Quantidade', y='Categoria')
-    plt.title('Distribuição de Categorias nas Ligações')
-    plt.tight_layout()
-    plt.savefig(os.path.join(pasta_visualizacoes, "graficos_estaticos", "distribuicao_categorias.png"))
-    plt.close()
+    fig.write_html(os.path.join(pasta_visualizacoes, "distribuicao_categorias.html"))
 
 def gerar_grafico_correlacao_categorias(df: pd.DataFrame, pasta_visualizacoes: str):
     """Gera matriz de correlação entre categorias"""
@@ -229,15 +223,7 @@ def gerar_grafico_correlacao_categorias(df: pd.DataFrame, pasta_visualizacoes: s
     )
     
     # Salva versão interativa
-    fig.write_html(os.path.join(pasta_visualizacoes, "graficos_interativos", "correlacao_categorias.html"))
-    
-    # Versão estática
-    plt.figure(figsize=(12, 10))
-    sns.heatmap(correlacao, annot=True, cmap='coolwarm', center=0)
-    plt.title('Correlação entre Categorias')
-    plt.tight_layout()
-    plt.savefig(os.path.join(pasta_visualizacoes, "graficos_estaticos", "correlacao_categorias.png"))
-    plt.close()
+    fig.write_html(os.path.join(pasta_visualizacoes, "correlacao_categorias.html"))
 
 def extrair_ramal(nome_arquivo: str) -> str:
     """Extrai o ramal do nome do arquivo."""
@@ -281,7 +267,7 @@ def gerar_grafico_atendentes(df: pd.DataFrame, pasta_visualizacoes: str):
     )
     
     # Salva o gráfico
-    fig.write_html(os.path.join(pasta_visualizacoes, "graficos_interativos", "atendimentos_por_atendente.html"))
+    fig.write_html(os.path.join(pasta_visualizacoes, "atendimentos_por_atendente.html"))
     
     return contagem_atendentes
 
@@ -293,23 +279,14 @@ def gerar_relatorio_html(df: pd.DataFrame, df_categorias: pd.DataFrame,
     # Gera as linhas da tabela de categorias
     linhas_tabela = ""
     for _, row in df_categorias.iterrows():
-        linhas_tabela += f"""
-        <tr>
-            <td>{row['Categoria']}</td>
-            <td>{row['Quantidade']}</td>
-            <td>{row['Percentual']:.1f}%</td>
-        </tr>
-        """
-    
-    # Gera as linhas da tabela de atendentes
-    tabela_atendentes = ""
-    for _, row in df_atendentes.iterrows():
-        tabela_atendentes += f"""
-        <tr>
-            <td>{row['Atendente']}</td>
-            <td>{row['Quantidade']}</td>
-        </tr>
-        """
+        if row['Categoria'] != "Outros assuntos":  # Remove a categoria duplicada
+            linhas_tabela += f"""
+            <tr>
+                <td>{row['Categoria']}</td>
+                <td>{row['Quantidade']}</td>
+                <td>{row['Percentual']:.1f}%</td>
+            </tr>
+            """
     
     # Gera as linhas da tabela de horários
     tabela_horarios = ""
@@ -321,21 +298,104 @@ def gerar_relatorio_html(df: pd.DataFrame, df_categorias: pd.DataFrame,
         </tr>
         """
     
-    # Gera as linhas da tabela de dias da semana
-    tabela_dias_semana = ""
-    for _, row in df_dias_semana.iterrows():
-        tabela_dias_semana += f"""
-        <tr>
-            <td>{row['Dia']}</td>
-            <td>{row['Quantidade']}</td>
-        </tr>
-        """
+    # Análises críticas
+    analise_atendentes = """
+    <div class="analise-critica">
+        <h3>Análise Crítica - Distribuição por Atendente</h3>
+        <p>Observa-se uma concentração significativa de atendimentos (60.3%) realizados pela atendente Joelma, 
+        o que pode indicar um desequilíbrio na distribuição de chamadas. Isso pode levar a sobrecarga de trabalho 
+        e possível impacto na qualidade do atendimento. Recomenda-se avaliar a distribuição atual das chamadas e 
+        considerar uma redistribuição mais equilibrada entre os atendentes.</p>
+    </div>
+    """
+    
+    analise_dias = """
+    <div class="analise-critica">
+        <h3>Análise Crítica - Distribuição por Dia da Semana</h3>
+        <p>A segunda-feira apresenta um volume significativamente maior de ligações (25.9%), 
+        seguido por uma distribuição mais uniforme nos outros dias. Este padrão sugere uma 
+        maior demanda no início da semana, possivelmente devido a acúmulo de demandas do fim 
+        de semana. Recomenda-se reforçar a equipe nas segundas-feiras para melhor atender 
+        este pico de demanda.</p>
+    </div>
+    """
+    
+    analise_categorias = """
+    <div class="analise-critica">
+        <h3>Análise Crítica - Distribuição de Categorias</h3>
+        <p>Destaca-se o alto índice de ligações indevidas/sem resposta (52.8%), o que representa 
+        um problema significativo de eficiência no sistema de atendimento. O segundo maior motivo 
+        é agendamento de consultas (47.8%), seguido por encaminhamentos para WhatsApp (20.4%). 
+        Recomenda-se:</p>
+        <ul>
+            <li>Investigar as causas das ligações indevidas/sem resposta</li>
+            <li>Avaliar a implementação de um sistema de agendamento online para reduzir o volume de ligações</li>
+            <li>Otimizar o processo de encaminhamento para WhatsApp</li>
+        </ul>
+    </div>
+    """
+    
+    analise_horarios = """
+    <div class="analise-critica">
+        <h3>Análise Crítica - Distribuição por Horário</h3>
+        <p>O pico de ligações ocorre entre 11h e 13h, com destaque para as 11h (47 ligações). 
+        Este padrão indica uma concentração de demanda no horário próximo ao almoço. Sugere-se:</p>
+        <ul>
+            <li>Reforçar a equipe de atendimento neste período</li>
+            <li>Considerar escala de almoço alternada para manter capacidade de atendimento</li>
+            <li>Avaliar a possibilidade de incentivos para clientes utilizarem horários alternativos</li>
+        </ul>
+    </div>
+    """
+    
+    analise_final = """
+    <div class="analise-final">
+        <h2>Análise Final e Recomendações</h2>
+        <p>A análise dos dados de Maio/2025 revela pontos críticos que merecem atenção:</p>
+        
+        <h3>Principais Achados:</h3>
+        <ul>
+            <li>Alto volume de ligações indevidas (52.8%)</li>
+            <li>Concentração de atendimentos em uma única atendente (60.3%)</li>
+            <li>Pico de demanda às segundas-feiras (25.9%)</li>
+            <li>Horário crítico entre 11h e 13h</li>
+        </ul>
+        
+        <h3>Recomendações Estratégicas:</h3>
+        <ol>
+            <li><strong>Otimização do Sistema de Atendimento:</strong>
+                <ul>
+                    <li>Implementar sistema de agendamento online</li>
+                    <li>Melhorar triagem inicial das chamadas</li>
+                    <li>Desenvolver FAQ no site para reduzir ligações simples</li>
+                </ul>
+            </li>
+            <li><strong>Gestão de Recursos Humanos:</strong>
+                <ul>
+                    <li>Redistribuir chamadas entre atendentes</li>
+                    <li>Capacitar equipe para múltiplos tipos de atendimento</li>
+                    <li>Implementar escala flexível para cobrir horários de pico</li>
+                </ul>
+            </li>
+            <li><strong>Melhorias Tecnológicas:</strong>
+                <ul>
+                    <li>Avaliar sistema de callback para reduzir tempo de espera</li>
+                    <li>Implementar chatbot para dúvidas básicas</li>
+                    <li>Melhorar integração entre canais de atendimento</li>
+                </ul>
+            </li>
+        </ol>
+        
+        <p>A implementação dessas recomendações pode levar a uma significativa melhoria na 
+        eficiência do atendimento e satisfação dos pacientes.</p>
+    </div>
+    """
     
     html_content = f"""
     <!DOCTYPE html>
     <html>
     <head>
-        <title>Análise de Ligações - Instituto Bhariátrica</title>
+        <title>Análise de Ligações - Instituto Bhariátrica - Maio/2025</title>
         <meta charset="UTF-8">
         <style>
             :root {{
@@ -384,6 +444,12 @@ def gerar_relatorio_html(df: pd.DataFrame, df_categorias: pd.DataFrame,
                 margin-top: 30px;
             }}
             
+            h3 {{
+                color: var(--secondary-color);
+                font-size: 1.4em;
+                margin-top: 20px;
+            }}
+            
             .stats {{ 
                 background-color: var(--background-light);
                 padding: 25px;
@@ -398,6 +464,30 @@ def gerar_relatorio_html(df: pd.DataFrame, df_categorias: pd.DataFrame,
                 border-radius: 10px;
                 margin: 30px 0;
                 box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }}
+            
+            .analise-critica {{
+                background-color: var(--background-light);
+                padding: 20px;
+                border-radius: 8px;
+                margin: 20px 0;
+                border-left: 4px solid var(--primary-color);
+            }}
+            
+            .analise-final {{
+                background-color: var(--background-light);
+                padding: 30px;
+                border-radius: 10px;
+                margin: 40px 0;
+                border: 2px solid var(--primary-color);
+            }}
+            
+            .analise-final ul, .analise-final ol {{
+                padding-left: 20px;
+            }}
+            
+            .analise-final li {{
+                margin: 10px 0;
             }}
             
             table {{ 
@@ -463,11 +553,11 @@ def gerar_relatorio_html(df: pd.DataFrame, df_categorias: pd.DataFrame,
     </head>
     <body>
         <div class="header">
-            <img src="logo.png" alt="Logo Bhariátrica" class="logo">
+            <img src="imagens/logo.png" alt="Logo Bhariátrica" class="logo">
         </div>
         
         <div class="container">
-            <h1>Análise de Ligações - Relatório Detalhado</h1>
+            <h1>Análise de Ligações - Maio/2025</h1>
             
             <div class="stats">
                 <h2>Estatísticas Gerais</h2>
@@ -479,36 +569,31 @@ def gerar_relatorio_html(df: pd.DataFrame, df_categorias: pd.DataFrame,
                 <div class="visualization">
                     <h2>Distribuição por Atendente</h2>
                     <iframe src="graficos_interativos/atendimentos_por_atendente.html" frameborder="0"></iframe>
-                    <table>
-                        <tr>
-                            <th>Atendente</th>
-                            <th>Quantidade</th>
-                        </tr>
-                        {tabela_atendentes}
-                    </table>
+                    {analise_atendentes}
                 </div>
 
                 <div class="visualization">
                     <h2>Distribuição por Dia da Semana</h2>
                     <iframe src="graficos_interativos/distribuicao_dias_semana.html" frameborder="0"></iframe>
-                    <table>
-                        <tr>
-                            <th>Dia</th>
-                            <th>Quantidade</th>
-                        </tr>
-                        {tabela_dias_semana}
-                    </table>
+                    {analise_dias}
                 </div>
             </div>
 
             <div class="visualization">
                 <h2>Distribuição de Categorias</h2>
                 <iframe src="graficos_interativos/distribuicao_categorias.html" frameborder="0"></iframe>
-            </div>
-
-            <div class="visualization">
-                <h2>Correlação entre Categorias</h2>
-                <iframe src="graficos_interativos/correlacao_categorias.html" frameborder="0"></iframe>
+                <div class="stats">
+                    <h2>Detalhamento por Categoria</h2>
+                    <table>
+                        <tr>
+                            <th>Categoria</th>
+                            <th>Quantidade</th>
+                            <th>Percentual</th>
+                        </tr>
+                        {linhas_tabela}
+                    </table>
+                </div>
+                {analise_categorias}
             </div>
 
             <div class="visualization">
@@ -521,19 +606,10 @@ def gerar_relatorio_html(df: pd.DataFrame, df_categorias: pd.DataFrame,
                     </tr>
                     {tabela_horarios}
                 </table>
+                {analise_horarios}
             </div>
 
-            <div class="stats">
-                <h2>Detalhamento por Categoria</h2>
-                <table>
-                    <tr>
-                        <th>Categoria</th>
-                        <th>Quantidade</th>
-                        <th>Percentual</th>
-                    </tr>
-                    {linhas_tabela}
-                </table>
-            </div>
+            {analise_final}
         </div>
         
         <div class="footer">
@@ -544,22 +620,8 @@ def gerar_relatorio_html(df: pd.DataFrame, df_categorias: pd.DataFrame,
     """
     
     # Salva o relatório na pasta raiz
-    with open("relatorio_ligacoes.html", "w", encoding="utf-8") as f:
+    with open("index.html", "w", encoding="utf-8") as f:
         f.write(html_content)
-    
-    # Copia os arquivos de gráficos interativos para uma pasta na raiz
-    pasta_graficos = "graficos_interativos"
-    os.makedirs(pasta_graficos, exist_ok=True)
-    
-    # Copia os arquivos de gráficos
-    import shutil
-    for arquivo in ['distribuicao_categorias.html', 'correlacao_categorias.html',
-                   'atendimentos_por_atendente.html', 'distribuicao_horarios.html',
-                   'distribuicao_dias_semana.html']:
-        shutil.copy2(
-            os.path.join(pasta_visualizacoes, "graficos_interativos", arquivo),
-            os.path.join(pasta_graficos, arquivo)
-        )
 
 def main():
     print("Iniciando geração de visualizações...")
@@ -596,7 +658,7 @@ def main():
     print("\nVocê encontrará:")
     print("1. Gráficos estáticos na pasta 'graficos_estaticos'")
     print("2. Gráficos interativos na pasta 'graficos_interativos'")
-    print("3. Um relatório HTML completo: 'relatorio_ligacoes.html'")
+    print("3. Um relatório HTML completo: 'index.html'")
 
 if __name__ == "__main__":
     main() 

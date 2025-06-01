@@ -1,7 +1,8 @@
+
     <!DOCTYPE html>
     <html>
     <head>
-        <title>Análise de Ligações - Instituto Bhariátrica</title>
+        <title>Análise de Ligações - Instituto Bhariátrica - Maio/2025</title>
         <meta charset="UTF-8">
         <style>
             :root {
@@ -23,15 +24,12 @@
                 background-color: #ffffff;
                 padding: 20px 0;
                 border-bottom: 1px solid #eee;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                gap: 40px;
             }
             
             .logo {
                 max-width: 200px;
-                height: auto;
+                margin: 0 auto;
+                display: block;
             }
             
             .container { 
@@ -53,6 +51,12 @@
                 margin-top: 30px;
             }
             
+            h3 {
+                color: var(--secondary-color);
+                font-size: 1.4em;
+                margin-top: 20px;
+            }
+            
             .stats { 
                 background-color: var(--background-light);
                 padding: 25px;
@@ -67,6 +71,30 @@
                 border-radius: 10px;
                 margin: 30px 0;
                 box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            
+            .analise-critica {
+                background-color: var(--background-light);
+                padding: 20px;
+                border-radius: 8px;
+                margin: 20px 0;
+                border-left: 4px solid var(--primary-color);
+            }
+            
+            .analise-final {
+                background-color: var(--background-light);
+                padding: 30px;
+                border-radius: 10px;
+                margin: 40px 0;
+                border: 2px solid var(--primary-color);
+            }
+            
+            .analise-final ul, .analise-final ol {
+                padding-left: 20px;
+            }
+            
+            .analise-final li {
+                margin: 10px 0;
             }
             
             table { 
@@ -133,112 +161,136 @@
     <body>
         <div class="header">
             <img src="imagens/logo.png" alt="Logo Bhariátrica" class="logo">
-            <img src="imagens/logo ibmec.png" alt="Logo IBMEC" class="logo">
         </div>
         
         <div class="container">
-            <h1>Análise de Ligações - Relatório Detalhado (Maio/2024)</h1>
+            <h1>Análise de Ligações - Maio/2025</h1>
             
             <div class="stats">
                 <h2>Estatísticas Gerais</h2>
-                <p>Total de ligações analisadas: <span class="highlight">253</span></p>
-                <p>Data da análise: <span class="highlight">01/06/2025 15:44:07</span></p>
+                <p>Total de ligações analisadas: <span class="highlight">343</span></p>
+                <p>Data da análise: <span class="highlight">01/06/2025 19:03:34</span></p>
             </div>
 
             <div class="grid-container">
                 <div class="visualization">
                     <h2>Distribuição por Atendente</h2>
                     <iframe src="graficos_interativos/atendimentos_por_atendente.html" frameborder="0"></iframe>
-                    <table>
-                        <tr>
-                            <th>Atendente</th>
-                            <th>Quantidade</th>
-                        </tr>
-                        
-        <tr>
-            <td>Joelma</td>
-            <td>156</td>
-        </tr>
-        
-        <tr>
-            <td>Ana Rafaela</td>
-            <td>33</td>
-        </tr>
-        
-        <tr>
-            <td>Lucila</td>
-            <td>26</td>
-        </tr>
-        
-        <tr>
-            <td>Bia</td>
-            <td>22</td>
-        </tr>
-        
-        <tr>
-            <td>Júlio</td>
-            <td>8</td>
-        </tr>
-        
-        <tr>
-            <td>Atendente não identificada</td>
-            <td>4</td>
-        </tr>
-        
-        <tr>
-            <td>Lucas</td>
-            <td>4</td>
-        </tr>
-        
-                    </table>
+                    
+    <div class="analise-critica">
+        <h3>Análise Crítica - Distribuição por Atendente</h3>
+        <p>Observa-se uma concentração significativa de atendimentos (60.3%) realizados pela atendente Joelma, 
+        o que pode indicar um desequilíbrio na distribuição de chamadas. Isso pode levar a sobrecarga de trabalho 
+        e possível impacto na qualidade do atendimento. Recomenda-se avaliar a distribuição atual das chamadas e 
+        considerar uma redistribuição mais equilibrada entre os atendentes.</p>
+    </div>
+    
                 </div>
 
                 <div class="visualization">
                     <h2>Distribuição por Dia da Semana</h2>
                     <iframe src="graficos_interativos/distribuicao_dias_semana.html" frameborder="0"></iframe>
-                    <table>
-                        <tr>
-                            <th>Dia</th>
-                            <th>Quantidade</th>
-                        </tr>
-                        
-        <tr>
-            <td>Segunda-feira</td>
-            <td>nan</td>
-        </tr>
-        
-        <tr>
-            <td>Terça-feira</td>
-            <td>nan</td>
-        </tr>
-        
-        <tr>
-            <td>Quarta-feira</td>
-            <td>nan</td>
-        </tr>
-        
-        <tr>
-            <td>Quinta-feira</td>
-            <td>nan</td>
-        </tr>
-        
-        <tr>
-            <td>Sexta-feira</td>
-            <td>nan</td>
-        </tr>
-        
-                    </table>
+                    
+    <div class="analise-critica">
+        <h3>Análise Crítica - Distribuição por Dia da Semana</h3>
+        <p>A segunda-feira apresenta um volume significativamente maior de ligações (25.9%), 
+        seguido por uma distribuição mais uniforme nos outros dias. Este padrão sugere uma 
+        maior demanda no início da semana, possivelmente devido a acúmulo de demandas do fim 
+        de semana. Recomenda-se reforçar a equipe nas segundas-feiras para melhor atender 
+        este pico de demanda.</p>
+    </div>
+    
                 </div>
             </div>
 
             <div class="visualization">
                 <h2>Distribuição de Categorias</h2>
                 <iframe src="graficos_interativos/distribuicao_categorias.html" frameborder="0"></iframe>
-            </div>
-
-            <div class="visualization">
-                <h2>Correlação entre Categorias</h2>
-                <iframe src="graficos_interativos/correlacao_categorias.html" frameborder="0"></iframe>
+                <div class="stats">
+                    <h2>Detalhamento por Categoria</h2>
+                    <table>
+                        <tr>
+                            <th>Categoria</th>
+                            <th>Quantidade</th>
+                            <th>Percentual</th>
+                        </tr>
+                        
+            <tr>
+                <td>Ligação indevida/sem resposta</td>
+                <td>181</td>
+                <td>52.8%</td>
+            </tr>
+            
+            <tr>
+                <td>Agendamento de consulta</td>
+                <td>164</td>
+                <td>47.8%</td>
+            </tr>
+            
+            <tr>
+                <td>Encaminhamento para WhatsApp</td>
+                <td>70</td>
+                <td>20.4%</td>
+            </tr>
+            
+            <tr>
+                <td>Dúvidas sobre cirurgia</td>
+                <td>56</td>
+                <td>16.3%</td>
+            </tr>
+            
+            <tr>
+                <td>Retorno pós-operatório</td>
+                <td>34</td>
+                <td>9.9%</td>
+            </tr>
+            
+            <tr>
+                <td>Cobranças e valores</td>
+                <td>28</td>
+                <td>8.2%</td>
+            </tr>
+            
+            <tr>
+                <td>Reclamação</td>
+                <td>22</td>
+                <td>6.4%</td>
+            </tr>
+            
+            <tr>
+                <td>Erro na transcrição</td>
+                <td>17</td>
+                <td>5.0%</td>
+            </tr>
+            
+            <tr>
+                <td>Reagendamento ou cancelamento</td>
+                <td>16</td>
+                <td>4.7%</td>
+            </tr>
+            
+            <tr>
+                <td>Solicitação de atestado</td>
+                <td>5</td>
+                <td>1.5%</td>
+            </tr>
+            
+                    </table>
+                </div>
+                
+    <div class="analise-critica">
+        <h3>Análise Crítica - Distribuição de Categorias</h3>
+        <p>Destaca-se o alto índice de ligações indevidas/sem resposta (52.8%), o que representa 
+        um problema significativo de eficiência no sistema de atendimento. O segundo maior motivo 
+        é agendamento de consultas (47.8%), seguido por encaminhamentos para WhatsApp (20.4%). 
+        Recomenda-se:</p>
+        <ul>
+            <li>Investigar as causas das ligações indevidas/sem resposta</li>
+            <li>Avaliar a implementação de um sistema de agendamento online para reduzir o volume de ligações</li>
+            <li>Otimizar o processo de encaminhamento para WhatsApp</li>
+        </ul>
+    </div>
+    
             </div>
 
             <div class="visualization">
@@ -250,85 +302,88 @@
                         <th>Quantidade</th>
                     </tr>
                     
+        <tr>
+            <td>11:00</td>
+            <td>47</td>
+        </tr>
+        
+        <tr>
+            <td>12:00</td>
+            <td>42</td>
+        </tr>
+        
+        <tr>
+            <td>13:00</td>
+            <td>39</td>
+        </tr>
+        
+        <tr>
+            <td>10:00</td>
+            <td>38</td>
+        </tr>
+        
+        <tr>
+            <td>15:00</td>
+            <td>35</td>
+        </tr>
+        
                 </table>
+                
+    <div class="analise-critica">
+        <h3>Análise Crítica - Distribuição por Horário</h3>
+        <p>O pico de ligações ocorre entre 11h e 13h, com destaque para as 11h (47 ligações). 
+        Este padrão indica uma concentração de demanda no horário próximo ao almoço. Sugere-se:</p>
+        <ul>
+            <li>Reforçar a equipe de atendimento neste período</li>
+            <li>Considerar escala de almoço alternada para manter capacidade de atendimento</li>
+            <li>Avaliar a possibilidade de incentivos para clientes utilizarem horários alternativos</li>
+        </ul>
+    </div>
+    
             </div>
 
-            <div class="stats">
-                <h2>Detalhamento por Categoria</h2>
-                <table>
-                    <tr>
-                        <th>Categoria</th>
-                        <th>Quantidade</th>
-                        <th>Percentual</th>
-                    </tr>
-                    
-        <tr>
-            <td>Ligação indevida/sem resposta</td>
-            <td>142</td>
-            <td>56.1%</td>
-        </tr>
+            
+    <div class="analise-final">
+        <h2>Análise Final e Recomendações</h2>
+        <p>A análise dos dados de Maio/2025 revela pontos críticos que merecem atenção:</p>
         
-        <tr>
-            <td>Agendamento de consulta</td>
-            <td>123</td>
-            <td>48.6%</td>
-        </tr>
+        <h3>Principais Achados:</h3>
+        <ul>
+            <li>Alto volume de ligações indevidas (52.8%)</li>
+            <li>Concentração de atendimentos em uma única atendente (60.3%)</li>
+            <li>Pico de demanda às segundas-feiras (25.9%)</li>
+            <li>Horário crítico entre 11h e 13h</li>
+        </ul>
         
-        <tr>
-            <td>Encaminhamento para WhatsApp</td>
-            <td>58</td>
-            <td>22.9%</td>
-        </tr>
+        <h3>Recomendações Estratégicas:</h3>
+        <ol>
+            <li><strong>Otimização do Sistema de Atendimento:</strong>
+                <ul>
+                    <li>Implementar sistema de agendamento online</li>
+                    <li>Melhorar triagem inicial das chamadas</li>
+                    <li>Desenvolver FAQ no site para reduzir ligações simples</li>
+                </ul>
+            </li>
+            <li><strong>Gestão de Recursos Humanos:</strong>
+                <ul>
+                    <li>Redistribuir chamadas entre atendentes</li>
+                    <li>Capacitar equipe para múltiplos tipos de atendimento</li>
+                    <li>Implementar escala flexível para cobrir horários de pico</li>
+                </ul>
+            </li>
+            <li><strong>Melhorias Tecnológicas:</strong>
+                <ul>
+                    <li>Avaliar sistema de callback para reduzir tempo de espera</li>
+                    <li>Implementar chatbot para dúvidas básicas</li>
+                    <li>Melhorar integração entre canais de atendimento</li>
+                </ul>
+            </li>
+        </ol>
         
-        <tr>
-            <td>Outros assuntos</td>
-            <td>45</td>
-            <td>17.8%</td>
-        </tr>
-        
-        <tr>
-            <td>Dúvidas sobre cirurgia</td>
-            <td>40</td>
-            <td>15.8%</td>
-        </tr>
-        
-        <tr>
-            <td>Retorno pós-operatório</td>
-            <td>27</td>
-            <td>10.7%</td>
-        </tr>
-        
-        <tr>
-            <td>Cobranças e valores</td>
-            <td>20</td>
-            <td>7.9%</td>
-        </tr>
-        
-        <tr>
-            <td>Reclamação</td>
-            <td>16</td>
-            <td>6.3%</td>
-        </tr>
-        
-        <tr>
-            <td>Reagendamento ou cancelamento</td>
-            <td>13</td>
-            <td>5.1%</td>
-        </tr>
-        
-        <tr>
-            <td>Erro na transcrição</td>
-            <td>12</td>
-            <td>4.7%</td>
-        </tr>
-        
-        <tr>
-            <td>Solicitação de atestado</td>
-            <td>4</td>
-            <td>1.6%</td>
-        </tr>
-                </table>
-            </div>
+        <p>A implementação dessas recomendações pode levar a uma significativa melhoria na 
+        eficiência do atendimento e satisfação dos pacientes.</p>
+    </div>
+    
         </div>
         
         <div class="footer">

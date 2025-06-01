@@ -69,9 +69,12 @@ def transcrever_audio(audio_path):
 
 def processar_audios():
     """Processa todos os arquivos de áudio na pasta de gravações."""
+    # Obtém o diretório raiz do projeto
+    diretorio_raiz = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    
     # Configuração de pastas
-    pasta_audios = os.path.join("automatizacoes_de_download", "automatizacao_downloads_audios", "ligacoes_descompactadas", "2025-05")
-    pasta_resultados = os.path.join("scripts_processamento", "bd_transcricao", "2025-05")
+    pasta_audios = os.path.join(diretorio_raiz, "automatizacoes_de_download", "automatizacao_downloads_audios", "ligacoes_descompactadas", "2025-05")
+    pasta_resultados = os.path.join(diretorio_raiz, "scripts_processamento", "bd_transcricao", "2025-05")
     pasta_resultados_individuais = os.path.join(pasta_resultados, "transcricoes_individuais")
     arquivo_checkpoint = os.path.join(pasta_resultados, "checkpoint.csv")
     

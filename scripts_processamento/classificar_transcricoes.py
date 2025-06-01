@@ -19,6 +19,23 @@ CATEGORIAS = {
     'Reclamação': ['reclamação', 'insatisfação', 'problema', 'queixa', 'insatisfeito', 'reclamar']
 }
 
+def extrair_data_hora(nome_arquivo: str) -> Dict[str, str]:
+    """
+    Extrai data e hora do nome do arquivo.
+    Exemplo: 2025_05_02_08_57_13_bioc5318_5318.xlsx
+    """
+    partes = nome_arquivo.split('_')
+    try:
+        data = f"{partes[2]}/{partes[1]}/{partes[0]}"  # DD/MM/YYYY
+        hora = f"{partes[3]}:{partes[4]}"  # HH:MM
+        return {
+            'data': data,
+            'hora': hora,
+            'dia_semana': datetime.strptime(f"{partes[0]}-{partes[1]}-{partes[2]}", "%Y-%m-%d").strftime("%A")
+        }
+    except (IndexError, ValueError):
+        return {'data': '', 'hora': '', 'dia_semana': ''}
+
 def carregar_transcricoes(pasta_transcricoes: str) -> List[Dict]:
     """
     Carrega todas as transcrições da pasta especificada.
@@ -44,9 +61,26 @@ def carregar_transcricoes(pasta_transcricoes: str) -> List[Dict]:
             df = pd.read_excel(caminho_completo)
             if 'nome_arquivo' in df.columns and 'texto_transcrito' in df.columns:
                 dados = df.iloc[0].to_dict()  # Converte a primeira linha para dicionário
+                
+                # Remove a coluna data_processamento se existir
+                if 'data_processamento' in dados:
+                    del dados['data_processamento']
+                
+                # Extrai informações temporais do nome do arquivo original
+                nome_arquivo_original = dados['nome_arquivo']
+                info_temporal = extrair_data_hora(nome_arquivo_original)
+                dados.update(info_temporal)
+                
+                # Adiciona data_hora para ordenação
+                data_str = f"{info_temporal['data']} {info_temporal['hora']}"
+                dados['data_hora'] = datetime.strptime(data_str, "%d/%m/%Y %H:%M")
+                
                 transcricoes.append(dados)
         except Exception as e:
             print(f"Erro ao carregar {arquivo}: {str(e)}")
+    
+    # Ordena as transcrições por data e hora
+    transcricoes = sorted(transcricoes, key=lambda x: x['data_hora'])
     
     return transcricoes
 
@@ -92,6 +126,7 @@ def classificar_transcricoes():
     # Configuração de pastas
     pasta_transcricoes = os.path.join("scripts_processamento", "bd_transcricao", "2025-05", "transcricoes_individuais")
     pasta_resultados = os.path.join("scripts_processamento", "bd_transcricao", "2025-05")
+    arquivo_classificacao = os.path.join(pasta_resultados, "classificacao_parcial_20250601_150727.xlsx")
     
     print("Iniciando classificação das transcrições disponíveis...")
     
@@ -120,12 +155,11 @@ def classificar_transcricoes():
         df.at[idx, 'categorias_detectadas'] = ', '.join(categorias)
         df.at[idx, 'trecho_representativo'] = json.dumps(trechos, ensure_ascii=False)
     
-    # Salva o resultado
-    arquivo_saida = os.path.join(pasta_resultados, f'classificacao_parcial_{datetime.now().strftime("%Y%m%d_%H%M%S")}.xlsx')
-    df.to_excel(arquivo_saida, index=False)
+    # Salva o resultado sobrescrevendo o arquivo existente
+    df.to_excel(arquivo_classificacao, index=False)
     
     print("\nClassificação parcial concluída!")
-    print(f"Resultados salvos em: {arquivo_saida}")
+    print(f"Resultados salvos em: {arquivo_classificacao}")
     
     # Exibe estatísticas das categorias
     print("\nEstatísticas por categoria:")
