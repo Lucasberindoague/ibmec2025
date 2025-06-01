@@ -6,8 +6,8 @@
 __pycache__/
 *.pyc
 
-# Pasta de áudios
-automatizacoes_de_download/audios/
+# Pastas excluídas
+automatizacoes_de_download/
 scripts_processamento/audios/
 **/audios/
 
