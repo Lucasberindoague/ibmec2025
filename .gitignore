@@ -1,0 +1,18 @@
+# Arquivos do sistema
+.DS_Store
+
+# Ambiente virtual Python
+.venv/
+__pycache__/
+*.pyc
+
+# Pasta de áudios
+automatizacoes_de_download/audios/
+scripts_processamento/audios/
+**/audios/
+
+# Outros arquivos que podem ser grandes
+*.wav
+*.mp3
+*.m4a
+*.ogg 

@@ -1,0 +1,12 @@
+openai-whisper==20231117
+torch
+ffmpeg-python
+transformers
+pandas==2.1.0
+numpy==1.24.3
+matplotlib
+scikit-learn
+tqdm==4.66.1
+pydub
+selenium>=4.10.0
+openpyxl==3.1.2 
